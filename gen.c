@@ -58,7 +58,7 @@ void genDiv() {
  * @brief Funcao que gera codigo de montagem para MULTIPLICACAO
  *
  */
-void genMult() {
+void genMulti() {
   printf("pop rbx\n");
   printf("pop rax\n");
   printf("imul rax,rbx\n");

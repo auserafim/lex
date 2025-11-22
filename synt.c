@@ -10,10 +10,7 @@
 #include "gen.h"  // Garante o acesso às funcoes de geracao de codigo
 #include "lex.h"  // Garante o getToken
 
-// Definição das variáveis globais (Elas foram definidas em compiler.c)
-// Agora, synt.c apenas as utiliza via 'extern' em synt.h
-
-// Protótipos internos (se necessário)
+type_token *lookahead;
 int number();
 
 /**
@@ -24,6 +21,27 @@ int match(int token_tag) {
     lookahead = getToken(); // Pega o proximo token por meio do lexico
     return true;
   }
+  printf("Erro Sintatico: Esperado token %d (Ex: '+', '*') mas encontrado tag "
+         "%d (Token: %s)\n",
+         token_tag, lookahead->tag, lookahead->lexema);
+  return false;
+}
+
+/**
+ * @brief Regra de derivacao da gramatica: TERM
+ */
+int term() {
+  if (factor() && termR())
+    return true;
+  return false;
+}
+
+/**
+ * @brief Regra de derivacao da gramatica: EXPR (Função inicial da sintaxe)
+ */
+int expr() {
+  if (term() && exprR())
+    return true;
   return false;
 }
 
@@ -38,8 +56,7 @@ int number() {
 
   char aux_lexema[MAX_TOKEN];
 
-  // Proteção contra lookahead nulo (embora não deva acontecer aqui)
-  if (lookahead && lookahead->lexema) {
+  if (lookahead) {
     strcpy(aux_lexema, lookahead->lexema);
   } else {
     return false;
@@ -49,49 +66,6 @@ int number() {
     genNum(aux_lexema);
     return true;
   }
-  return false;
-}
-
-/**
- * @brief Regra de derivacao da gramatica: FACTOR
- */
-int factor() {
-  if (number())
-    return true;
-  return false;
-}
-
-/**
- * @brief Regra de derivacao da gramatica: TERMR
- */
-int termR() {
-  int test1, test2;
-  if (lookahead->tag == MULT) {
-    test1 = match(MULT);
-    test2 = factor();
-    genMulti();
-    if (test1 && test2)
-      return termR();
-    return false;
-
-  } else if (lookahead->tag == DIV) {
-    test1 = match(DIV);
-    test2 = factor();
-    genDiv();
-    if (test1 && test2)
-      return termR();
-    return false;
-  }
-
-  return true; // Vazio (epsilon)
-}
-
-/**
- * @brief Regra de derivacao da gramatica: TERM
- */
-int term() {
-  if (factor() && termR())
-    return true;
   return false;
 }
 
@@ -120,10 +94,61 @@ int exprR() {
 }
 
 /**
- * @brief Regra de derivacao da gramatica: EXPR (Função inicial da sintaxe)
+ * @brief Regra de derivacao da gramatica: FACTOR
  */
-int expr() {
-  if (term() && exprR())
+int factor() {
+  if (number())
     return true;
   return false;
+}
+
+/**
+ * @brief Regra de derivacao da gramatica: TERMR
+ */
+int termR() {
+  int test1, test2;
+
+  if (lookahead->tag == MULT) {
+    test1 = match(MULT);
+
+    if (test1 && !factor()) {
+      printf("ERRO SINTATICO (TERM_R): Esperado um FATOR "
+             "(numero/identificador) apos o operador de multiplicacao (*).\n");
+      return false;
+    }
+
+    genMulti();
+
+    if (test1) {
+      if (termR()) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+    return false;
+
+  } else if (lookahead->tag == DIV) {
+    test1 = match(DIV);
+
+    if (test1 && !factor()) {
+      printf("ERRO SINTATICO (TERM_R): Esperado um FATOR "
+             "(numero/identificador) apos o operador de divisao (/).\n");
+      return false;
+    }
+
+    genDiv();
+
+    if (test1) {
+      if (termR()) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    return false;
+  }
+
+  return true; // vazio
 }

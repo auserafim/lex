@@ -1,22 +1,12 @@
 
 
+#include "lex.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "lex.h"
-
-int pos;
-char string[MAX_CHAR];
-
-/**
- * @brief Processo de inicializacao do lexico. Tem funcao de receber o codigo
- *        de entrada.
- *
- */
 void initLex(const char *filename) {
-
-  // Abra o arquivo para leitura
+  // procedimento padrao de ler arquivo em c
   FILE *file = fopen(filename, "r");
   if (file == NULL) {
     printf("Erro ao abrir o arquivo.\n");
@@ -27,19 +17,14 @@ void initLex(const char *filename) {
   long file_size = ftell(file);
   fseek(file, 0, SEEK_SET);
 
-  // Aloca espaço para o buffer
   char *file_content = (char *)malloc(file_size + 1);
 
-  // Lê o conteúdo do arquivo para o buffer
   fread(file_content, 1, file_size, file);
   file_content[file_size] = '\0';
 
   fclose(file);
 
-  // Atribua o buffer ao seu ponteiro global "string"
   strcpy(string, file_content);
-
-  // Libere o buffer de conteúdo do arquivo
   free(file_content);
 
   pos = 0;
@@ -107,6 +92,10 @@ type_token *getToken() {
   else {
     token->tag = ERROR;
     strcpy(token->lexema, "");
+    // imprimindo mensagem de errro apontando o caractere e a sua devida posição
+    printf("[ERRO]: Ocorreu um erro na posicao %d com o caractere: %c\n", pos,
+           string[pos]);
+    exit(0);
   }
 
   return token;

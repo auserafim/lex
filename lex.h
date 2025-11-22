@@ -10,16 +10,15 @@
 #ifndef _LEX_H_
 #define _LEX_H_
 
+#include "struct_compiler.h"
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "struct_compiler.h"
-
 // Variaveis globais
-// static int pos;
-// extern char string[MAX_CHAR];
+static int pos;
+static char string[MAX_CHAR];
 
 // Prototipos
 void initLex(const char *);
