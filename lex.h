@@ -1,0 +1,28 @@
+/**
+ * @file lex.h
+ * @author Prof. Ivairton M. Santos
+ * @brief Modulo do analisador lexico
+ * @version 0.1
+ * @date 2021-11-24
+ *
+ */
+
+#ifndef _LEX_H_
+#define _LEX_H_
+
+#include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "struct_compiler.h"
+
+// Variaveis globais
+// static int pos;
+// extern char string[MAX_CHAR];
+
+// Prototipos
+void initLex(const char *);
+type_token *getToken();
+
+#endif //_LEX_H_
